@@ -9,7 +9,7 @@ layout (location = 1) out vec3 brightColor;
 
 void main()
 {
-    colorOut = vec4(.8, 1.2, 2, 1);
+    colorOut = vec4(.1, .2, .4, 1);
     #if BLOOM
     brightColor = vec3(0);
     #endif

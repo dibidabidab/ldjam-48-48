@@ -69,6 +69,9 @@ function create(board, args)
         end
     end
 
+    local holdingType = nil
+    local placedAfterHold = true
+
     local nextFallingBlockType = shapes.getRandomShape()
     local fallingBlocksMade = 0
     function newFallingBlock()
@@ -93,6 +96,19 @@ function create(board, args)
 
         nextFallingBlockType = shapes.getRandomShape()
         return obj
+    end
+
+    function updateNextAndHolding()
+        local nextB = getChild(cam, "nextBlock")
+        local holdB = getChild(cam, "holdBlock")
+        if nextB ~= nil then
+            destroyEntity(nextB)
+        end
+        if holdB ~= nil then
+            destroyEntity(holdB)
+        end
+        nextB = createChild(cam, "nextBlock")
+        applyTemplate(nextB, "FallingBlock", { type = nextFallingBlockType })
     end
 
     local fallingBlock = newFallingBlock()
@@ -198,6 +214,7 @@ function create(board, args)
             component.CameraPerspective.animate(cam, "fieldOfView", 75, .05, "pow2")    -- todo: maybe bug in c++
         end)
 
+        placedAfterHold = true
         fallingBlock = newFallingBlock()
         return true
     end
@@ -214,34 +231,61 @@ function create(board, args)
         moveDownAndPossiblyFinish()
     end)
 
+    function delayUpdate()
+        local scripted = component.LuaScripted.getFor(board)
+        scripted.updateAccumulator = scripted.updateAccumulator * .5
+    end
+
     listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
     onEntityEvent(board, "move_right_pressed", function()
         moveFallingBlock(1, 0)
         isOrientationValid(true)
+        delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.moveLeft, "move_left")
     onEntityEvent(board, "move_left_pressed", function()
         moveFallingBlock(-1, 0)
         isOrientationValid(true)
+        delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.softDrop, "soft_drop")
     onEntityEvent(board, "soft_drop_pressed", function()
         moveFallingBlock(0, -1)
         isOrientationValid(true)
+        delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.rotateRight, "rotate_right")
     onEntityEvent(board, "rotate_right_pressed", function()
         rotateFallingBlock(true)
         isOrientationValid(true)
+        delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.rotateLeft, "rotate_left")
     onEntityEvent(board, "rotate_left_pressed", function()
         rotateFallingBlock(false)
         isOrientationValid(true)
+        delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.place, "place")
     onEntityEvent(board, "place_pressed", function()
         finishFallingBlock()
+    end)
+    listenToKey(board, gameSettings.keyInput.hold, "hold")
+    onEntityEvent(board, "hold_pressed", function()
+
+        if not placedAfterHold then
+            print("cannot hold, place first")
+            return
+        end
+        placedAfterHold = false
+
+        if holdingType ~= nill then
+            nextFallingBlockType = holdingType
+        end
+        holdingType = fallingBlock.type
+        print("holding:", holdingType)
+        destroyEntity(fallingBlock.entity)
+        fallingBlock = newFallingBlock()
     end)
 
     function updateMaxYMarker()
@@ -251,7 +295,6 @@ function create(board, args)
             component.Transform.animate(maxYMarkers[i], "position", vec3(pos.x, maxY + 1, pos.z), .1, "pow2")
         end
     end
-
 
     local introduceNewRow = nil
     introduceNewRow = function()

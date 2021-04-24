@@ -5,8 +5,6 @@ defaultArgs({
 
 function create(block, args)
 
-    print("Creating falling block:", args.type)
-
     local color = {
         J = vec3(.1, .3, 1.2),
         L = vec3(1.2, .4, .0),
