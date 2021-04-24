@@ -11,7 +11,8 @@ function create(block, args)
         Transform(),
         RenderModel {
             modelName = args.type.."Block"
-        }
+        },
+        ShadowCaster()
     })
 
 end

@@ -69,11 +69,11 @@ shapes["O"] = {
 shapes["I"] = {
     {1, 1, 1, 1}
 }
-shapes["S"] = {
+shapes["Z"] = { -- Upside down, so it looks like a S but it is a Z
     { 0, 1, 1 },
     { 1, 1, 0 }
 }
-shapes["Z"] = {
+shapes["S"] = {
     {1, 1, 0},
     {0, 1, 1}
 }

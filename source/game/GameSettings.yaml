@@ -14,7 +14,7 @@ GraphicsSettings:
   bloomThreshold: [float, 1.7]
   shadows: [bool, true]
   maxArmatureBones: [uint, 64]
-  fogStart: [float, 10]
+  fogStart: [float, 20]
   fogEnd: [float, 30]
   fogEnabled: [bool, true]
 
@@ -35,7 +35,7 @@ KeyInputSettings:
   rotateRight: [ KeyInput::Key, GLFW_KEY_UP ]
   rotateLeft: [ KeyInput::Key, GLFW_KEY_Z ]
   softDrop: [ KeyInput::Key, GLFW_KEY_DOWN ]
-  hardDrop: [ KeyInput::Key, GLFW_KEY_SPACE ]
+  place: [ KeyInput::Key, GLFW_KEY_SPACE ]
   hold: [ KeyInput::Key, GLFW_KEY_C ]
 
 Settings:

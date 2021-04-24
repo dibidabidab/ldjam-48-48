@@ -22,16 +22,24 @@ function create(board, args)
     print("Creating game board..")
     setName(board, "board")
 
-    for x = 0, args.width do
+    local cam = createChild(board, "camera")
+    applyTemplate(cam, "Camera", { setAsMain = true })
+    component.Transform.getFor(cam).position = vec3(args.width / 2, 0, 15)
+
+    function placeDot(x, y, bad)
+        minY = math.min(y, minY)
+
+        local dot = createChild(board, "dot"..x..","..y)
+        applyTemplate(dot, bad and "BadDotBlock" or "DotBlock")
+        grid[x][y] = dot
+
+        component.Transform.getFor(dot).position = vec3(x, y, 0)
+    end
+
+    for x = 0, args.width - 1 do
         grid[x] = {}
         for y = -10, 0 do
-            minY = math.min(y, minY)
-
-            local dot = createChild(board, "dot"..x..","..y)
-            applyTemplate(dot, "DotBlock")
-            grid[x][y] = dot
-
-            component.Transform.getFor(dot).position = vec3(x, y, 0)
+            placeDot(x, y)
         end
     end
 
@@ -52,7 +60,9 @@ function create(board, args)
             modelOffset = ivec2(0),
             timesRotated = 0
         }
-        print("Size of falling block:", shapes.getSize(obj.shape))
+        local size = shapes.getSize(obj.shape)
+        obj.x = obj.x - math.floor(size.x / 2)
+        print("Size of falling block:", size)
         component.Transform.getFor(block).position = vec3(obj.x, obj.y, 0)
 
         nextFallingBlockType = shapes.getRandomShape()
@@ -65,15 +75,15 @@ function create(board, args)
         fallingBlock.x = fallingBlock.x + x
         fallingBlock.y = fallingBlock.y + y
         component.Transform.animate(fallingBlock.entity, "position",
-                vec3(fallingBlock.x + fallingBlock.modelOffset.x, fallingBlock.y + fallingBlock.modelOffset.y, 0), .05)
+                vec3(fallingBlock.x + fallingBlock.modelOffset.x, fallingBlock.y + fallingBlock.modelOffset.y, .5), .05)
     end
     function rotateFallingBlock(right)
 
         if right then
-            fallingBlock.shape = shapes.rotate_CW_90(fallingBlock.shape)
+            fallingBlock.shape = shapes.rotate_CCW_90(fallingBlock.shape)
             fallingBlock.timesRotated = fallingBlock.timesRotated + 1
         else
-            fallingBlock.shape = shapes.rotate_CCW_90(fallingBlock.shape)
+            fallingBlock.shape = shapes.rotate_CW_90(fallingBlock.shape)
             fallingBlock.timesRotated = fallingBlock.timesRotated - 1
         end
         fallingBlock.timesRotated = mod(fallingBlock.timesRotated, 4)
@@ -113,37 +123,43 @@ function create(board, args)
                 end
                 valid = false
             end
-            if fallingBlock.x + size.x > args.width + 1 then
+            if fallingBlock.x + size.x > args.width then
                 if doCorrections then
                     moveFallingBlock(-1, 0)
                 end
                 valid = false
             end
-            if valid then
-
-                local noContactWithAir = true
-                for x = 1, size.x do
-                    for y = 1, size.y do
-
-                        if fallingBlock.shape[y][x] == 1 then
-
-                            local gridPos = ivec2(fallingBlock.x + x - 1, fallingBlock.y + y - 1)
-
-                            local dotAbove = grid[gridPos.x][gridPos.y + 1]
-
-                            if dotAbove == nil then
-                                noContactWithAir = false
-                            end
-                        end
-                    end
+            if fallingBlock.y < minY then
+                if doCorrections then
+                    moveFallingBlock(0, 1)
                 end
-                if noContactWithAir then
-                    valid = false
-                    if doCorrections then
-                        moveFallingBlock(0, 1)
-                    end
-                end
+                valid = false
             end
+            --if valid then
+            --
+            --    local noContactWithAir = true
+            --    for x = 1, size.x do
+            --        for y = 1, size.y do
+            --
+            --            if fallingBlock.shape[y][x] == 1 then
+            --
+            --                local gridPos = ivec2(fallingBlock.x + x - 1, fallingBlock.y + y - 1)
+            --
+            --                local dotAbove = grid[gridPos.x][gridPos.y + 1]
+            --
+            --                if dotAbove == nil then
+            --                    noContactWithAir = false
+            --                end
+            --            end
+            --        end
+            --    end
+            --    if noContactWithAir then
+            --        valid = false
+            --        if doCorrections then
+            --            moveFallingBlock(0, 1)
+            --        end
+            --    end
+            --end
             if not doCorrections then
                 return valid
             end
@@ -151,13 +167,47 @@ function create(board, args)
         return valid
     end
 
-    setUpdateFunction(board, .5, function()
+    function finishFallingBlock()
+        destroyEntity(fallingBlock.entity)
 
-        moveFallingBlock(0, -1)
-        if not isOrientationValid(false) then
-            isOrientationValid(true)
-            fallingBlock = newFallingBlock()
+        local size = shapes.getSize(fallingBlock.shape)
+
+        for x = 1, size.x do
+            for y = 1, size.y do
+
+                if fallingBlock.shape[y][x] == 1 then
+
+                    local gridPos = ivec2(fallingBlock.x + x - 1, fallingBlock.y + y - 1)
+
+                    local dot = grid[gridPos.x][gridPos.y]
+
+                    if dot == nil then
+                        print("OVERLAP! place dot")
+                        placeDot(gridPos.x, gridPos.y, true)
+                    else
+                        destroyEntity(dot)
+                        grid[gridPos.x][gridPos.y] = nil
+                    end
+                end
+            end
         end
+
+        fallingBlock = nil
+    end
+
+    --function moveDownAndPossiblyFinish()
+    --    moveFallingBlock(0, -1)
+    --    if not isOrientationValid(false) then
+    --        isOrientationValid(true)
+    --        finishFallingBlock()
+    --
+    --        fallingBlock = newFallingBlock()
+    --    end
+    --end
+
+    setUpdateFunction(board, .5, function()
+        --moveDownAndPossiblyFinish()
+
     end)
 
 
@@ -186,5 +236,10 @@ function create(board, args)
     onEntityEvent(board, "rotate_left_pressed", function()
         rotateFallingBlock(false)
         isOrientationValid(true)
+    end)
+    listenToKey(board, gameSettings.keyInput.place, "place")
+    onEntityEvent(board, "place_pressed", function()
+        finishFallingBlock()
+        fallingBlock = newFallingBlock()
     end)
 end
