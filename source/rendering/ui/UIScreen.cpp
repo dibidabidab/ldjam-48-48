@@ -148,13 +148,13 @@ void UIScreen::render(double deltaTime)
         glUniform2i(applyPaletteUIShader.location("realResolution"), gu::widthPixels, gu::heightPixels);
 
         auto palettesTexture = Game::palettes->get3DTexture();
-        palettesTexture->bind(0);
-        glUniform1i(applyPaletteUIShader.location("palettes"), 0);
+        palettesTexture->bind(1);
+        glUniform1i(applyPaletteUIShader.location("palettes"), 1);
         glUniform1ui(applyPaletteUIShader.location("paletteEffect"), 0);    // todo
         glUniform1ui(applyPaletteUIShader.location("prevPaletteEffect"), 0);
         glUniform1f(applyPaletteUIShader.location("timeSinceNewPaletteEffect"), 0);
 
-        indexedFbo->colorTexture->bind(1, applyPaletteUIShader, "indexedImage");
+        indexedFbo->colorTexture->bind(0, applyPaletteUIShader, "indexedImage");
 
         Mesh::getQuad()->render();
     }
