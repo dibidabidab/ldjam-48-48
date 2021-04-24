@@ -2,7 +2,9 @@
 shapes = include("scripts/entities/level_room/_block_shapes")
 
 defaultArgs({
-    width = 10
+    width = 10,
+    timeTillNewRow = 10,
+    fallTime = 1.
 })
 
 function mod(a, b)
@@ -18,13 +20,27 @@ function create(board, args)
 
     local grid = {}
     local minY = 999999999
+    local maxY = 4
 
     print("Creating game board..")
     setName(board, "board")
 
     local cam = createChild(board, "camera")
     applyTemplate(cam, "Camera", { setAsMain = true })
-    component.Transform.getFor(cam).position = vec3(args.width / 2, 0, 15)
+    component.Transform.getFor(cam).position = vec3(args.width / 2, 2, 14)
+
+    local maxYMarkers = { createChild(board, "maxYMarkerLeft"), createChild(board, "maxYMarkerRight") }
+    for i = 1, 2 do
+        setComponents(maxYMarkers[i], {
+            Transform {
+                position = (i == 1) and vec3(0) or vec3(args.width, 0, 0)
+            },
+            RenderModel {
+                modelName = "MaxYMarker"
+            }
+        })
+    end
+    component.Transform.getFor(maxYMarkers[2]).rotation.z = 180
 
     function placeDot(x, y, bad)
         minY = math.min(y, minY)
@@ -35,10 +51,20 @@ function create(board, args)
 
         component.Transform.getFor(dot).position = vec3(x, y, 0)
     end
+    function removeDot(x, y)
+        local dot = grid[x][y]
+        if dot == nil then
+            return false
+        else
+            destroyEntity(dot)
+            grid[x][y] = nil
+            return true
+        end
+    end
 
     for x = 0, args.width - 1 do
         grid[x] = {}
-        for y = -10, 0 do
+        for y = -8, maxY do
             placeDot(x, y)
         end
     end
@@ -56,7 +82,7 @@ function create(board, args)
             type = nextFallingBlockType,
             shape = shapes.shapes[nextFallingBlockType],
             x = math.floor(args.width / 2),
-            y = 5,
+            y = maxY + 5,
             modelOffset = ivec2(0),
             timesRotated = 0
         }
@@ -75,7 +101,7 @@ function create(board, args)
         fallingBlock.x = fallingBlock.x + x
         fallingBlock.y = fallingBlock.y + y
         component.Transform.animate(fallingBlock.entity, "position",
-                vec3(fallingBlock.x + fallingBlock.modelOffset.x, fallingBlock.y + fallingBlock.modelOffset.y, .5), .05)
+                vec3(fallingBlock.x + fallingBlock.modelOffset.x, fallingBlock.y + fallingBlock.modelOffset.y, 1.), .05)
     end
     function rotateFallingBlock(right)
 
@@ -135,31 +161,6 @@ function create(board, args)
                 end
                 valid = false
             end
-            --if valid then
-            --
-            --    local noContactWithAir = true
-            --    for x = 1, size.x do
-            --        for y = 1, size.y do
-            --
-            --            if fallingBlock.shape[y][x] == 1 then
-            --
-            --                local gridPos = ivec2(fallingBlock.x + x - 1, fallingBlock.y + y - 1)
-            --
-            --                local dotAbove = grid[gridPos.x][gridPos.y + 1]
-            --
-            --                if dotAbove == nil then
-            --                    noContactWithAir = false
-            --                end
-            --            end
-            --        end
-            --    end
-            --    if noContactWithAir then
-            --        valid = false
-            --        if doCorrections then
-            --            moveFallingBlock(0, 1)
-            --        end
-            --    end
-            --end
             if not doCorrections then
                 return valid
             end
@@ -168,9 +169,13 @@ function create(board, args)
     end
 
     function finishFallingBlock()
-        destroyEntity(fallingBlock.entity)
-
         local size = shapes.getSize(fallingBlock.shape)
+
+        if fallingBlock.y + size.y > maxY + 1 then
+            return false
+        end
+
+        destroyEntity(fallingBlock.entity)
 
         for x = 1, size.x do
             for y = 1, size.y do
@@ -179,38 +184,35 @@ function create(board, args)
 
                     local gridPos = ivec2(fallingBlock.x + x - 1, fallingBlock.y + y - 1)
 
-                    local dot = grid[gridPos.x][gridPos.y]
-
-                    if dot == nil then
+                    if not removeDot(gridPos.x, gridPos.y) then
                         print("OVERLAP! place dot")
                         placeDot(gridPos.x, gridPos.y, true)
-                    else
-                        destroyEntity(dot)
-                        grid[gridPos.x][gridPos.y] = nil
                     end
                 end
             end
         end
 
         fallingBlock = nil
+
+        component.CameraPerspective.animate(cam, "fieldOfView", 75.4, .05, "pow2", function()
+            component.CameraPerspective.animate(cam, "fieldOfView", 75, .05, "pow2")    -- todo: maybe bug in c++
+        end)
+
+        fallingBlock = newFallingBlock()
+        return true
     end
 
-    --function moveDownAndPossiblyFinish()
-    --    moveFallingBlock(0, -1)
-    --    if not isOrientationValid(false) then
-    --        isOrientationValid(true)
-    --        finishFallingBlock()
-    --
-    --        fallingBlock = newFallingBlock()
-    --    end
-    --end
+    function moveDownAndPossiblyFinish()
+        moveFallingBlock(0, -1)
+        if not isOrientationValid(false) then
+            isOrientationValid(true)
+            finishFallingBlock()
+        end
+    end
 
-    setUpdateFunction(board, .5, function()
-        --moveDownAndPossiblyFinish()
-
+    setUpdateFunction(board, args.fallTime, function()
+        moveDownAndPossiblyFinish()
     end)
-
-
 
     listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
     onEntityEvent(board, "move_right_pressed", function()
@@ -240,6 +242,36 @@ function create(board, args)
     listenToKey(board, gameSettings.keyInput.place, "place")
     onEntityEvent(board, "place_pressed", function()
         finishFallingBlock()
-        fallingBlock = newFallingBlock()
     end)
+
+    function updateMaxYMarker()
+        print("MaxY =", maxY)
+        for i = 1, 2 do
+            local pos = component.Transform.getFor(maxYMarkers[i]).position
+            component.Transform.animate(maxYMarkers[i], "position", vec3(pos.x, maxY + 1, pos.z), .1, "pow2")
+        end
+    end
+
+
+    local introduceNewRow = nil
+    introduceNewRow = function()
+
+        setTimeout(board, args.timeTillNewRow, function()
+            minY = minY - 1
+            for x = 0, args.width - 1 do
+                placeDot(x, minY)
+
+                if removeDot(x, maxY) then
+                    print("Dot crossed maxY line!", x)
+                end
+            end
+            introduceNewRow()
+            maxY = maxY - 1
+            updateMaxYMarker()
+        end)
+        local camPos = component.Transform.getFor(cam).position
+        component.Transform.animate(cam, "position", vec3(camPos.x, minY + 9, camPos.z), args.timeTillNewRow)
+    end
+    introduceNewRow()
+    updateMaxYMarker()
 end

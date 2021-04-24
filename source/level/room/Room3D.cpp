@@ -8,6 +8,7 @@
 #include "../../generated/Camera.hpp"
 #include "../../game/Game.h"
 #include "../../ecs/systems/ArmatureAnimationSystem.h"
+#include "../../ecs/systems/TransformSystem.h"
 
 Room3D::Room3D()
 {
@@ -27,6 +28,7 @@ Room3D::Room3D()
         .add_(VertAttributes::BONE_WEIGHT_3);
 
     addSystem(new ArmatureAnimationSystem("Armature animations"));
+    addSystem(new TransformSystem("Transforms"));
 }
 
 vec3 Room3D::getPosition(entt::entity e) const

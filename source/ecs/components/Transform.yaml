@@ -3,3 +3,8 @@ Transform:
   position: vec3
   rotation: quat
   scale: [vec3, vec3(1)]
+
+ParentOffset:
+  position: vec3
+  rotation: quat
+  scale: [ vec3, vec3(1) ]
