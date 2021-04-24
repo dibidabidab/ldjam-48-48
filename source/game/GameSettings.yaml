@@ -18,6 +18,8 @@ GraphicsSettings:
   fogEnd: [float, 25]
   fogEnabled: [bool, true]
 
+  uiPixelScaling: [uint, 3]
+
   debugShadowBoxes: [bool, true]
   debugArmatures: [bool, true]
 

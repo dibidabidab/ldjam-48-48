@@ -1,12 +1,21 @@
+# Deeptris
 
+#### [Download for Linux](https://dibidabidab.github.io/ldjam-48-48/game-linux.zip)
+#### [Download for Windows](https://dibidabidab.github.io/ldjam-48-48/game-windows.zip)
+#### [Play game in browser (CHROME RECOMMENDED *)](https://dibidabidab.github.io/ldjam-48-48/game.html)
+<sup>*the WebGL implementation of Firefox is slow, use Chrome instead, or download the native desktop version if you have low FPS.</sup>
 
-<!-- #### [Download for Linux](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game-linux.zip)
-#### [Download for Windows](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game-windows.zip)
-#### [Play game in browser*](https://dibidabidab.github.io/game-without-a-name-and-unicorns/game.html)
-<sup>*less peformance, prefer the linux or windows download instead.</sup>
+[![Build & deploy to gh-pages](https://github.com/dibidabidab/ldjam-48-48/actions/workflows/build_and_deploy.yml/badge.svg)](https://github.com/dibidabidab/ldjam-48-48/actions/workflows/build_and_deploy.yml)
 
-![Build & deploy to gh-pages](https://github.com/dibidabidab/game-without-a-name-and-unicorns/workflows/Build%20&%20deploy%20to%20gh-pages/badge.svg)
-[![BCH compliance](https://bettercodehub.com/edge/badge/hilkojj/dibidabidab?branch=master)](https://bettercodehub.com/) -->
+A tetris inspired game for the 48th Ludum Dare 48.
+
+## Tools used
+- Blender 2.79
+- [Blender to .ubj exporter](https://github.com/dibidabidab/blender_UBJSON_exporter)
+- Audacity
+- Aseprite
+- G++/MVC++/Emscripten
+- CLion (any other C++ editor will do too)
 
 ## Usage
 

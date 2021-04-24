@@ -295,7 +295,7 @@ function create(board, args)
 
     function delayUpdate()
         local scripted = component.LuaScripted.getFor(board)
-        scripted.updateAccumulator = scripted.updateAccumulator * .5
+        scripted.updateAccumulator = scripted.updateAccumulator * .3
     end
 
     listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
@@ -323,7 +323,7 @@ function create(board, args)
 
         local e = fallingBlock.entity
 
-        setTimeout(e, .2, function()
+        setTimeout(e, .1, function()
             setUpdateFunction(e, .08, function()
                 if not softDropReleased and softDropPressed == pressTime then
                     moveFallingBlock(0, -1)
@@ -405,7 +405,9 @@ function create(board, args)
                     print("Dot crossed maxY line!", x)
                 end
             end
-            soundEffect("sounds/crossed")
+            if bad then
+                soundEffect("sounds/crossed")
+            end
             introduceNewRow()
             maxY = maxY - 1
             updateMaxYMarker()
