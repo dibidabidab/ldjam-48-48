@@ -17,6 +17,17 @@ function mod(a, b)
     end
 end
 
+function soundEffect(path)
+    setComponents(createEntity(), {
+        DespawnAfter {
+            time = 1.
+        },
+        SoundSpeaker {
+            sound = path
+        }
+    })
+end
+
 function create(board, args)
 
     local grid = {}
@@ -236,6 +247,7 @@ function create(board, args)
         end
 
         local modelPos = component.Transform.getFor(fallingBlock.entity).position
+        component.PointLight.remove(fallingBlock.entity)
         component.Transform.animate(fallingBlock.entity, "position", vec3(modelPos.x, modelPos.y, -10 + math.random() * .1), .05, function()
             setTimeout(board, 30, function()
                 destroyEntity(fallingBlock.entity)
@@ -263,6 +275,7 @@ function create(board, args)
             component.CameraPerspective.animate(cam, "fieldOfView", 75, .15, "pow2")    -- todo: maybe bug in c++
         end)
 
+        soundEffect("sounds/place")
         placedAfterHold = true
         fallingBlock = newFallingBlock()
         return true
@@ -310,8 +323,8 @@ function create(board, args)
 
         local e = fallingBlock.entity
 
-        setTimeout(e, .3, function()
-            setUpdateFunction(e, .1, function()
+        setTimeout(e, .2, function()
+            setUpdateFunction(e, .08, function()
                 if not softDropReleased and softDropPressed == pressTime then
                     moveFallingBlock(0, -1)
                     isOrientationValid(true)
@@ -329,12 +342,14 @@ function create(board, args)
     onEntityEvent(board, "rotate_right_pressed", function()
         rotateFallingBlock(true)
         isOrientationValid(true)
+        soundEffect("sounds/rotate")
         delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.rotateLeft, "rotate_left")
     onEntityEvent(board, "rotate_left_pressed", function()
         rotateFallingBlock(false)
         isOrientationValid(true)
+        soundEffect("sounds/rotate")
         delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.place, "place")
@@ -381,13 +396,16 @@ function create(board, args)
 
         setTimeout(board, args.timeTillNewRow, function()
             minY = minY - 1
+            local bad = false
             for x = 0, args.width - 1 do
                 placeDot(x, minY)
 
                 if removeDot(x, maxY, true) then
+                    bad = true
                     print("Dot crossed maxY line!", x)
                 end
             end
+            soundEffect("sounds/crossed")
             introduceNewRow()
             maxY = maxY - 1
             updateMaxYMarker()
