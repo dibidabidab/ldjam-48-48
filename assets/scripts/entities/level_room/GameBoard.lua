@@ -51,12 +51,26 @@ function create(board, args)
 
         component.Transform.getFor(dot).position = vec3(x, y, 0)
     end
-    function removeDot(x, y)
+    function removeDot(x, y, punish)
         local dot = grid[x][y]
         if dot == nil then
             return false
         else
-            destroyEntity(dot)
+            if punish then
+                component.Transform.animate(dot, "scale", vec3(.85), .5, "pow2Out")
+                component.Transform.animate(dot, "position", vec3(x, y + 3, 0), .5, "pow2Out", function()
+                    setTimeout(board, .4, function()
+                        component.Transform.animate(dot, "position", vec3(-2, y + 3, 0), .5, "pow2Out", function()
+                            setTimeout(board, .1, function()
+                                destroyEntity(dot)
+                            end)
+                        end)
+                    end)
+                end)
+            else
+                destroyEntity(dot)
+            end
+
             grid[x][y] = nil
             return true
         end
@@ -64,7 +78,7 @@ function create(board, args)
 
     for x = 0, args.width - 1 do
         grid[x] = {}
-        for y = -8, maxY do
+        for y = -8, maxY - 1 do
             placeDot(x, y)
         end
     end
@@ -95,6 +109,7 @@ function create(board, args)
         component.Transform.getFor(block).position = vec3(obj.x, obj.y, 0)
 
         nextFallingBlockType = shapes.getRandomShape()
+        updateNextAndHolding()
         return obj
     end
 
@@ -109,6 +124,26 @@ function create(board, args)
         end
         nextB = createChild(cam, "nextBlock")
         applyTemplate(nextB, "FallingBlock", { type = nextFallingBlockType })
+        setComponents(nextB, {
+            Transform {
+                position = vec3(-100, 0, 0) -- prevent one frame display
+            },
+            ParentOffset {
+                position = vec3(8, -6, -14)
+            }
+        })
+        if holdingType ~= nil then
+            holdB = createChild(cam, "holdBlock")
+            applyTemplate(holdB, "FallingBlock", { type = holdingType })
+            setComponents(holdB, {
+                Transform {
+                    position = vec3(-100, 0, 0) -- prevent one frame display
+                },
+                ParentOffset {
+                    position = vec3(-12, -6, -14)
+                }
+            })
+        end
     end
 
     local fallingBlock = newFallingBlock()
@@ -211,7 +246,7 @@ function create(board, args)
         fallingBlock = nil
 
         component.CameraPerspective.animate(cam, "fieldOfView", 75.4, .05, "pow2", function()
-            component.CameraPerspective.animate(cam, "fieldOfView", 75, .05, "pow2")    -- todo: maybe bug in c++
+            component.CameraPerspective.animate(cam, "fieldOfView", 75, .15, "pow2")    -- todo: maybe bug in c++
         end)
 
         placedAfterHold = true
@@ -304,7 +339,7 @@ function create(board, args)
             for x = 0, args.width - 1 do
                 placeDot(x, minY)
 
-                if removeDot(x, maxY) then
+                if removeDot(x, maxY, true) then
                     print("Dot crossed maxY line!", x)
                 end
             end

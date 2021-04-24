@@ -10,12 +10,12 @@ GraphicsSettings:
 
   gammaCorrection: [float, 2.2]
   msaaSamples: [uint8, 4]
-  bloomBlurIterations: [uint8, 8]
+  bloomBlurIterations: [uint8, 0]
   bloomThreshold: [float, 1.7]
   shadows: [bool, true]
   maxArmatureBones: [uint, 64]
   fogStart: [float, 20]
-  fogEnd: [float, 30]
+  fogEnd: [float, 25]
   fogEnabled: [bool, true]
 
   debugShadowBoxes: [bool, true]
@@ -46,3 +46,4 @@ Settings:
   graphics: GraphicsSettings
   keyInput: KeyInputSettings
   customSettings: [ json, json::object() ]
+  showDeveloperOptions: [ bool, false ]
