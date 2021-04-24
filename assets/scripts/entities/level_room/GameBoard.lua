@@ -1,4 +1,5 @@
 
+loadModels("assets/models/blocks.ubj", false)
 shapes = include("scripts/entities/level_room/_block_shapes")
 
 defaultArgs({
