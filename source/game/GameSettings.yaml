@@ -30,6 +30,14 @@ KeyInputSettings:
   flyCamera: [ KeyInput::Key, GLFW_KEY_F9 ]
   stopFlyingCamera: [ KeyInput::Key, GLFW_KEY_ESCAPE ]
 
+  moveRight: [ KeyInput::Key, GLFW_KEY_RIGHT ]
+  moveLeft: [ KeyInput::Key, GLFW_KEY_LEFT ]
+  rotateRight: [ KeyInput::Key, GLFW_KEY_UP ]
+  rotateLeft: [ KeyInput::Key, GLFW_KEY_Z ]
+  softDrop: [ KeyInput::Key, GLFW_KEY_DOWN ]
+  hardDrop: [ KeyInput::Key, GLFW_KEY_SPACE ]
+  hold: [ KeyInput::Key, GLFW_KEY_C ]
+
 Settings:
   _flags:
     - not_a_component
