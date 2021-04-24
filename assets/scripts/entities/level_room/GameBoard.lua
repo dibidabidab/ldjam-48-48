@@ -152,8 +152,16 @@ function create(board, args)
     function moveFallingBlock(x, y)
         fallingBlock.x = fallingBlock.x + x
         fallingBlock.y = fallingBlock.y + y
+
+        local z = 1.
+
+        local size = shapes.getSize(fallingBlock.shape)
+        if fallingBlock.y + size.y > maxY + 1 then
+            z = 1.8
+        end
+
         component.Transform.animate(fallingBlock.entity, "position",
-                vec3(fallingBlock.x + fallingBlock.modelOffset.x, fallingBlock.y + fallingBlock.modelOffset.y, 1.), .05)
+                vec3(fallingBlock.x + fallingBlock.modelOffset.x, fallingBlock.y + fallingBlock.modelOffset.y, z), .05)
     end
     function rotateFallingBlock(right)
 
@@ -228,7 +236,7 @@ function create(board, args)
         end
 
         local modelPos = component.Transform.getFor(fallingBlock.entity).position
-        component.Transform.animate(fallingBlock.entity, "position", vec3(modelPos.x, modelPos.y, -10), .05, function()
+        component.Transform.animate(fallingBlock.entity, "position", vec3(modelPos.x, modelPos.y, -10 + math.random() * .1), .05, function()
             setTimeout(board, 30, function()
                 destroyEntity(fallingBlock.entity)
             end)
@@ -361,6 +369,15 @@ function create(board, args)
 
     local introduceNewRow = nil
     introduceNewRow = function()
+
+        setTimeout(board, args.timeTillNewRow - 1.5, function()
+            for x = 0, args.width - 1 do
+                local dot = grid[x][maxY]
+                if dot then
+                    component.RenderModel.animate(dot, "visibilityMask", 11, 1.4)
+                end
+            end
+        end)
 
         setTimeout(board, args.timeTillNewRow, function()
             minY = minY - 1
