@@ -227,7 +227,12 @@ function create(board, args)
             return false
         end
 
-        destroyEntity(fallingBlock.entity)
+        local modelPos = component.Transform.getFor(fallingBlock.entity).position
+        component.Transform.animate(fallingBlock.entity, "position", vec3(modelPos.x, modelPos.y, -10), .05, function()
+            setTimeout(board, 30, function()
+                destroyEntity(fallingBlock.entity)
+            end)
+        end)
 
         for x = 1, size.x do
             for y = 1, size.y do
@@ -285,10 +290,32 @@ function create(board, args)
         delayUpdate()
     end)
     listenToKey(board, gameSettings.keyInput.softDrop, "soft_drop")
+    local softDropPressed = 0
+    local softDropReleased = false
     onEntityEvent(board, "soft_drop_pressed", function()
+        softDropPressed = softDropPressed + 1
+        softDropReleased = false
+        local pressTime = softDropPressed
         moveFallingBlock(0, -1)
         isOrientationValid(true)
         delayUpdate()
+
+        local e = fallingBlock.entity
+
+        setTimeout(e, .3, function()
+            setUpdateFunction(e, .1, function()
+                if not softDropReleased and softDropPressed == pressTime then
+                    moveFallingBlock(0, -1)
+                    isOrientationValid(true)
+                    delayUpdate()
+                else
+                    setUpdateFunction(e, 1, nil)
+                end
+            end)
+        end)
+    end)
+    onEntityEvent(board, "soft_drop_released", function()
+        softDropReleased = true
     end)
     listenToKey(board, gameSettings.keyInput.rotateRight, "rotate_right")
     onEntityEvent(board, "rotate_right_pressed", function()
