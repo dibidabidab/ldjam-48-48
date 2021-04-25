@@ -11,6 +11,8 @@ A tetris inspired game for the 48th Ludum Dare 48.
 
 Theme: Deeper and deeper
 
+### [Game page on Ludum Dare](https://ldjam.com/events/ludum-dare/48/deeptris)
+
 ## Tools used
 - Blender 2.79
 - [Blender to .ubj exporter](https://github.com/dibidabidab/blender_UBJSON_exporter)
