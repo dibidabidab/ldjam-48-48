@@ -46,6 +46,7 @@ KeyInputSettings:
   softDrop: [ KeyInput::Key, GLFW_KEY_DOWN ]
   place: [ KeyInput::Key, GLFW_KEY_SPACE ]
   hold: [ KeyInput::Key, GLFW_KEY_C ]
+  toggleDeveloperOptions: [ KeyInput::Key, GLFW_KEY_D ]
 
 Settings:
   _flags:
