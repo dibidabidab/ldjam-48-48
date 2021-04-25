@@ -96,3 +96,4 @@ applyTemplate(createChild(bottomTextCont), "Text", {
 endScreenTransition("textures/screen_transition0", "shaders/screen_transition/cutoff_texture")
 loadOrCreateLevel("assets/levels/title_screen.lvl")
 
+applyTemplate(createEntity(), "AwfulMusic")

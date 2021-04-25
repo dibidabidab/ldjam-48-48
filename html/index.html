@@ -43,6 +43,9 @@
         //     location.replace(location.href.replace("https", "http"))
         // }
 
+        if (!window.chrome)
+            alert("Hey, I *really* recommend using a Chrome(ium) browser instead for better peformance.\nHave fun.")
+
         const progressElement = document.getElementById('progress')
         const canvas = document.getElementById('canvas')
 

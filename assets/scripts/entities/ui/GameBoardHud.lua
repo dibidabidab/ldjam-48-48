@@ -223,4 +223,6 @@ function create(hud, args)
     _G.countDown = function()
         -- bla bla TODO
     end
+
+    applyTemplate(createEntity(), "AwfulMusic")
 end
