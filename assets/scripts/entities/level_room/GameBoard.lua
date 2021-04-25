@@ -29,6 +29,33 @@ function soundEffect(path)
     })
 end
 
+function holdKey(listener, keyName, action)
+    listenToKey(listener, gameSettings.keyInput[keyName], keyName)
+    local pressed = 0
+    local released = false
+    onEntityEvent(listener, keyName.."_pressed", function()
+        pressed = pressed + 1
+        released = false
+        local pressTime = pressed
+
+        action()
+
+        local e = createEntity()
+        setTimeout(e, .15, function()
+            setUpdateFunction(e, .08, function()
+                if not released and pressed == pressTime then
+                    action()
+                else
+                    component.DespawnAfter.getFor(e).time = 0.
+                end
+            end)
+        end)
+    end)
+    onEntityEvent(listener, keyName.."_released", function()
+        released = true
+    end)
+end
+
 function create(board, args)
 
     hudScreen.setRoom(currentEngine)
@@ -392,46 +419,22 @@ function create(board, args)
             component.LuaScripted.getFor(board).updateAccumulator = 0.
         end
 
-        listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
-        onEntityEvent(board, "move_right_pressed", function()
+        holdKey(board, "moveRight", function()
             moveFallingBlock(1, 0)
             isOrientationValid(true)
             delayUpdate()
         end)
-        listenToKey(board, gameSettings.keyInput.moveLeft, "move_left")
-        onEntityEvent(board, "move_left_pressed", function()
+        holdKey(board, "moveLeft", function()
             moveFallingBlock(-1, 0)
             isOrientationValid(true)
             delayUpdate()
         end)
-        listenToKey(board, gameSettings.keyInput.softDrop, "soft_drop")
-        local softDropPressed = 0
-        local softDropReleased = false
-        onEntityEvent(board, "soft_drop_pressed", function()
-            softDropPressed = softDropPressed + 1
-            softDropReleased = false
-            local pressTime = softDropPressed
+        holdKey(board, "softDrop", function()
             moveFallingBlock(0, -1)
             isOrientationValid(true)
             delayUpdate()
-
-            local e = fallingBlock.entity
-
-            setTimeout(e, .15, function()
-                setUpdateFunction(e, .08, function()
-                    if not softDropReleased and softDropPressed == pressTime then
-                        moveFallingBlock(0, -1)
-                        isOrientationValid(true)
-                        delayUpdate()
-                    else
-                        setUpdateFunction(e, 1, nil)
-                    end
-                end)
-            end)
         end)
-        onEntityEvent(board, "soft_drop_released", function()
-            softDropReleased = true
-        end)
+
         listenToKey(board, gameSettings.keyInput.rotateRight, "rotate_right")
         onEntityEvent(board, "rotate_right_pressed", function()
             rotateFallingBlock(true)
