@@ -1,25 +1,38 @@
 
 _G.titleScreen = true
 
+_G.joinedSession = false
+
 startupArgs = getGameStartupArgs()
+if not _G.joinedSession then
 
-saveGamePath = startupArgs["--single-player"] or "saves/default_save.dibdab"
-startSinglePlayerSession(saveGamePath)
+    saveGamePath = startupArgs["--single-player"] or "saves/default_save.dibdab"
+    startSinglePlayerSession(saveGamePath)
 
-username = startupArgs["--username"] or "poopoo"
-joinSession(username, function(declineReason)
+    username = startupArgs["--username"] or "poopoo"
+    joinSession(username, function(declineReason)
 
-    tryCloseGame()
-    error("couldn't join session: "..declineReason)
-end)
+        tryCloseGame()
+        error("couldn't join session: "..declineReason)
+    end)
+    _G.joinedSession = true
+end
 
 onEvent("BeforeDelete", function()
     print("startup screen done..")
 end)
 
 function startLevel()
-    closeActiveScreen()
-    openScreen("scripts/ui_screens/LevelScreen")
+    if screenTransitionStarted then
+        return
+    end
+
+    startScreenTransition("textures/screen_transition1", "shaders/screen_transition/cutoff_texture")
+    onEvent("ScreenTransitionStartFinished", function()
+
+        closeActiveScreen()
+        openScreen("scripts/ui_screens/LevelScreen")
+    end)
 end
 
 setComponents(createEntity(), {
@@ -80,5 +93,6 @@ applyTemplate(createChild(bottomTextCont), "Text", {
     color = colors.text
 })
 
+endScreenTransition("textures/screen_transition0", "shaders/screen_transition/cutoff_texture")
 loadOrCreateLevel("assets/levels/title_screen.lvl")
 

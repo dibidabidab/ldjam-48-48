@@ -38,6 +38,7 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     luaEnvironment["startScreenTransition"] = [&] (const asset<Texture> &tex, const std::string &fragShader) {
         if (transitionDir == 1)
             return;
+        luaEnvironment["screenTransitionStarted"] = true;
         transitionTexture = tex;
         transitionDir = 1;
         transitionTimer = 0;

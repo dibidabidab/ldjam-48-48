@@ -38,7 +38,7 @@ function create(title)
 
                 component.Transform.getFor(dot).position = vec3(x, 30, y)
                 component.Transform.getFor(dot).rotation.x = -90
-                setTimeout(dot, (x + y) * .1, function()
+                setTimeout(dot, (x + y) * .1 + .4, function()
                     local pos = component.Transform.getFor(dot).position
                     component.Transform.animate(dot, "position", vec3(pos.x, -3, pos.z), .4, "pow2Out")
                 end)

@@ -56,4 +56,5 @@ Settings:
   audio: AudioSettings
   keyInput: KeyInputSettings
   customSettings: [ json, json::object() ]
+  limitUpdatesPerSec: [ bool, false ]
   showDeveloperOptions: [ bool, false ]

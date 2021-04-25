@@ -88,7 +88,7 @@ function create(hud, args)
     local stopButton = createChild(hud, "stopButton")
     applyTemplate(stopButton, "Button", {
         text = "Stop ",
-        action = nil--_G.retryLevel
+        action = _G.goToMainMenu
     })
     component.UIElement.getFor(stopButton).startOnNewLine = true
     component.UIElement.getFor(stopButton).renderOffset.x = -69
@@ -216,7 +216,7 @@ function create(hud, args)
         })
         applyTemplate(createChild(popup), "Button", {
             text = "Main menu",
-            action = nil
+            action = _G.goToMainMenu
         })
     end
 

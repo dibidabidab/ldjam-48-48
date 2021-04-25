@@ -17,7 +17,8 @@ function create(con, args)
             nineSliceSprite = "sprites/ui/howtoplay_9slice",
 
             fixedWidth = 280,
-            fillRemainingParentHeight = true
+            fillRemainingParentHeight = true,
+            zIndexOffset = 5
         }
     })
     applyTemplate(createChild(con), "Text", {
