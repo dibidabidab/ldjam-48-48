@@ -10,7 +10,6 @@ function create(dot, args)
         RenderModel {
             modelName = (args.random() > .5) and "DotBlock" or "DotBlock.001"
         },
-        ShadowCaster(),
         ShadowReceiver()
     })
 

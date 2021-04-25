@@ -6,7 +6,6 @@ function create(dot)
         RenderModel {
             modelName = "BadDotBlock"
         },
-        ShadowCaster(),
         ShadowReceiver()
     })
 

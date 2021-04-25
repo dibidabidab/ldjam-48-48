@@ -1,4 +1,6 @@
 
+shapes = include("scripts/entities/level_room/_block_shapes")
+
 function create(title)
 
     loadModels("assets/models/title.ubj", false)
@@ -47,5 +49,22 @@ function create(title)
     end
 
     setMainCamera(getByName("cam"))
+
+    setUpdateFunction(title, 10., function()
+
+        local block = createChild(title)
+        applyTemplate(block, "FallingBlock", { type = shapes.getRandomShape() })
+        component.Transform.getFor(block).position = vec3(-40, 6, 23)
+        component.Transform.getFor(block).rotation.x = -56
+        component.Transform.getFor(block).rotation.z = -43
+        component.Transform.getFor(block).scale = vec3(15)
+        component.PointLight.remove(block) -- shader def lagspike
+
+        component.Transform.animate(block, "position", vec3(40, 6, 28), 10, function()
+            component.DespawnAfter(block).time = 0.
+        end)
+
+    end)
+    component.LuaScripted.getFor(title).updateAccumulator = 4
 
 end

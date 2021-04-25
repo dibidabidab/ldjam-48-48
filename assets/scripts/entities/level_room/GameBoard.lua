@@ -203,7 +203,7 @@ function create(board, args)
         fallingBlock.x = fallingBlock.x + x
         fallingBlock.y = fallingBlock.y + y
 
-        local z = 1.
+        local z = 1.2
 
         local size = shapes.getSize(fallingBlock.shape)
         if fallingBlock.y + size.y > maxY + 1 then
@@ -288,6 +288,7 @@ function create(board, args)
         local e = fallingBlock.entity
         local modelPos = component.Transform.getFor(e).position
         component.PointLight.remove(e)
+        component.ShadowCaster.remove(e)
         component.Transform.animate(e, "position", vec3(modelPos.x, modelPos.y, -10 + math.random() * .1), .05, "pow2Out", function()
             setTimeout(board, 30, function()
                 destroyEntity(e)
