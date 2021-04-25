@@ -311,8 +311,12 @@ function create(board, args)
 
         fallingBlock = nil
 
-        component.CameraPerspective.animate(cam, "fieldOfView", 75.4, .05, "pow2", function()
-            component.CameraPerspective.animate(cam, "fieldOfView", 75, .15, "pow2")    -- todo: maybe bug in c++
+        setSkySpeed(3. * timeMultiplier)
+        component.CameraPerspective.animate(cam, "fieldOfView", 75.6, .05, "pow2", function()
+            component.CameraPerspective.animate(cam, "fieldOfView", 75, .2, "pow2", function()
+                setSkySpeed(timeMultiplier)
+
+            end)    -- todo: maybe bug in c++
         end)
 
         soundEffect("sounds/place")

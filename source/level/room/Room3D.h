@@ -23,6 +23,7 @@ class Room3D : public Room
     VertAttributes loadedMeshAttributes, loadedRiggedMeshAttributes;
     std::unordered_map<std::string, SharedModel> models;
     bool paused = false;
+    float skyTime = 0., skyTimeMultiplier = 1.;
 
     Room3D();
 

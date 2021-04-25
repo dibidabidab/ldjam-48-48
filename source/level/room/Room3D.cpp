@@ -70,6 +70,9 @@ void Room3D::initializeLuaEnvironment()
     luaEnvironment["setPaused"] = [&] (bool p) {
         paused = p;
     };
+    luaEnvironment["setSkySpeed"] = [&] (float s) {
+        skyTimeMultiplier = s;
+    };
 }
 
 void Room3D::update(double deltaTime)
@@ -77,6 +80,7 @@ void Room3D::update(double deltaTime)
     if (!paused)
         Room::update(deltaTime);
 
+    skyTime += deltaTime * skyTimeMultiplier;
     updateOrCreateCamera(deltaTime);
 }
 

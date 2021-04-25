@@ -48,14 +48,14 @@ layout (location = 1) out vec4 brightColor;
 uniform vec3 diffuse;
 uniform vec4 specular;  // 4th component is Exponent
 
-uniform int useDiffuseTexture;
-uniform sampler2D diffuseTexture;
-
-uniform int useSpecularMap;
-uniform sampler2D specularMap;
-
-uniform int useNormalMap;
-uniform sampler2D normalMap;
+//uniform int useDiffuseTexture;
+//uniform sampler2D diffuseTexture;
+//
+//uniform int useSpecularMap;
+//uniform sampler2D specularMap;
+//
+//uniform int useNormalMap;
+//uniform sampler2D normalMap;
 
 uniform int useShadows; // todo: different shader for models that dont receive shadows? Sampling shadowmaps is expensive
 
@@ -150,19 +150,19 @@ void main()
     vec3 normal = vec3(0, 0, 1);    // normal will be in World space.
 
     // normal map:
-    if (useNormalMap == 1)
-    {
-        normal = texture(normalMap, v_textureCoord).xyz;
-        normal = normal * 2. - 1.;
-    }
+//    if (useNormalMap == 1)
+//    {
+//        normal = texture(normalMap, v_textureCoord).xyz;
+//        normal = normal * 2. - 1.;
+//    }
     normal = normalize(v_TBN * normal);
 
     vec3 diffuseColor = diffuse;
-    if (useDiffuseTexture == 1)
-    {
-        diffuseColor = texture(diffuseTexture, v_textureCoord).rgb;
-        diffuseColor = pow(diffuseColor, vec3(GAMMA)); // sRGB to linear space. https://learnopengl.com/Advanced-Lighting/Gamma-Correction
-    }
+//    if (useDiffuseTexture == 1)
+//    {
+//        diffuseColor = texture(diffuseTexture, v_textureCoord).rgb;
+//        diffuseColor = pow(diffuseColor, vec3(GAMMA)); // sRGB to linear space. https://learnopengl.com/Advanced-Lighting/Gamma-Correction
+//    }
 
     colorOut.rgb = diffuseColor;
 
@@ -211,8 +211,8 @@ void main()
 
     // specularity:
     vec3 specularColor = specular.rgb;
-    if (useSpecularMap == 1)
-        specularColor = texture(specularMap, v_textureCoord).rgb;
+//    if (useSpecularMap == 1)
+//        specularColor = texture(specularMap, v_textureCoord).rgb;
 
     colorOut.rgb += specularColor * totalSpecularLight;
 

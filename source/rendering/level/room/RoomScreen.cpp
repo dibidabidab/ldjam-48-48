@@ -292,7 +292,7 @@ void RoomScreen::renderRoom(const RenderContext &con)
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
         glDisable(GL_DEPTH_TEST);
         glDepthMask(GL_FALSE);
-
+        glUniform1f(con.skyShader->location("time"), room->skyTime);
         Mesh::getQuad()->render();
 
         glEnable(GL_DEPTH_TEST);
@@ -335,20 +335,20 @@ void RoomScreen::renderModel(const RenderContext &con, ShaderProgram &shader, en
             vec4 specAndExp = vec4(vec3(modelPart.material->specular) * modelPart.material->specular.a, modelPart.material->shininess);
             glUniform4fv(shader.location("specular"), 1, &specAndExp[0]);
 
-            bool useDiffuseTexture = modelPart.material->diffuseTexture.isSet();
-            glUniform1i(shader.location("useDiffuseTexture"), useDiffuseTexture);
-            if (useDiffuseTexture)
-                modelPart.material->diffuseTexture->bind(0, shader, "diffuseTexture");
-
-            bool useSpecularMap = modelPart.material->specularMap.isSet();
-            glUniform1i(shader.location("useSpecularMap"), useSpecularMap);
-            if (useSpecularMap)
-                modelPart.material->specularMap->bind(1, shader, "specularMap");
-
-            bool useNormalMap = modelPart.material->normalMap.isSet();
-            glUniform1i(shader.location("useNormalMap"), useNormalMap);
-            if (useNormalMap)
-                modelPart.material->normalMap->bind(2, shader, "normalMap");
+//            bool useDiffuseTexture = modelPart.material->diffuseTexture.isSet();
+//            glUniform1i(shader.location("useDiffuseTexture"), useDiffuseTexture);
+//            if (useDiffuseTexture)
+//                modelPart.material->diffuseTexture->bind(0, shader, "diffuseTexture");
+//
+//            bool useSpecularMap = modelPart.material->specularMap.isSet();
+//            glUniform1i(shader.location("useSpecularMap"), useSpecularMap);
+//            if (useSpecularMap)
+//                modelPart.material->specularMap->bind(1, shader, "specularMap");
+//
+//            bool useNormalMap = modelPart.material->normalMap.isSet();
+//            glUniform1i(shader.location("useNormalMap"), useNormalMap);
+//            if (useNormalMap)
+//                modelPart.material->normalMap->bind(2, shader, "normalMap");
 
             if (con.shadows)
                 glUniform1i(shader.location("useShadows"), room->entities.has<ShadowReceiver>(e));

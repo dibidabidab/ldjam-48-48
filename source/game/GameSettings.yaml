@@ -17,7 +17,7 @@ GraphicsSettings:
 
   gammaCorrection: [float, 2.2]
   msaaSamples: [uint8, 4]
-  bloomBlurIterations: [uint8, 5]
+  bloomBlurIterations: [uint8, 3]
   bloomThreshold: [float, 1.7]
   shadows: [bool, true]
   maxArmatureBones: [uint, 64]
