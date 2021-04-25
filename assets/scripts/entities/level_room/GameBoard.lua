@@ -4,7 +4,7 @@ shapes = include("scripts/entities/level_room/_block_shapes")
 
 defaultArgs({
     width = 9,
-    timeTillNewRow = 10,
+    timeTillNewRow = 14,
     fallTime = 1.,
     deathMarksPerCol = 2
 })
@@ -38,6 +38,7 @@ function create(board, args)
     local maxY = 4
 
     local score = 0
+    local timeMultiplier = 1.
 
     print("Creating game board..")
     setName(board, "board")
@@ -84,7 +85,9 @@ function create(board, args)
                         end)
                     end)
                 end)
+                score = score - 1
             else
+                score = score + 1
                 destroyEntity(dot)
             end
 
@@ -167,7 +170,7 @@ function create(board, args)
         end
     end
 
-    local fallingBlock = newFallingBlock()
+    local fallingBlock = nil
 
     function moveFallingBlock(x, y)
         fallingBlock.x = fallingBlock.x + x
@@ -288,10 +291,14 @@ function create(board, args)
         soundEffect("sounds/place")
         placedAfterHold = true
         fallingBlock = newFallingBlock()
-        score = score + 1
-        hudScreen.updateHudScore(score)
+        hudScreen.updateHudScore(score, minY)
+
+        timeMultiplier = 1. + (math.max(0, math.min(score, 300)) / 300) * 3.
+        print("Time multiplier:", timeMultiplier)
+
         return true
     end
+    hudScreen.updateHudScore(score, minY)
 
     function moveDownAndPossiblyFinish()
         moveFallingBlock(0, -1)
@@ -300,90 +307,6 @@ function create(board, args)
             finishFallingBlock()
         end
     end
-
-    setUpdateFunction(board, args.fallTime, function()
-        moveDownAndPossiblyFinish()
-    end)
-
-    function delayUpdate()
-        component.LuaScripted.getFor(board).updateAccumulator = 0.
-    end
-
-    listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
-    onEntityEvent(board, "move_right_pressed", function()
-        moveFallingBlock(1, 0)
-        isOrientationValid(true)
-        delayUpdate()
-    end)
-    listenToKey(board, gameSettings.keyInput.moveLeft, "move_left")
-    onEntityEvent(board, "move_left_pressed", function()
-        moveFallingBlock(-1, 0)
-        isOrientationValid(true)
-        delayUpdate()
-    end)
-    listenToKey(board, gameSettings.keyInput.softDrop, "soft_drop")
-    local softDropPressed = 0
-    local softDropReleased = false
-    onEntityEvent(board, "soft_drop_pressed", function()
-        softDropPressed = softDropPressed + 1
-        softDropReleased = false
-        local pressTime = softDropPressed
-        moveFallingBlock(0, -1)
-        isOrientationValid(true)
-        delayUpdate()
-
-        local e = fallingBlock.entity
-
-        setTimeout(e, .15, function()
-            setUpdateFunction(e, .08, function()
-                if not softDropReleased and softDropPressed == pressTime then
-                    moveFallingBlock(0, -1)
-                    isOrientationValid(true)
-                    delayUpdate()
-                else
-                    setUpdateFunction(e, 1, nil)
-                end
-            end)
-        end)
-    end)
-    onEntityEvent(board, "soft_drop_released", function()
-        softDropReleased = true
-    end)
-    listenToKey(board, gameSettings.keyInput.rotateRight, "rotate_right")
-    onEntityEvent(board, "rotate_right_pressed", function()
-        rotateFallingBlock(true)
-        isOrientationValid(true)
-        soundEffect("sounds/rotate")
-        delayUpdate()
-    end)
-    listenToKey(board, gameSettings.keyInput.rotateLeft, "rotate_left")
-    onEntityEvent(board, "rotate_left_pressed", function()
-        rotateFallingBlock(false)
-        isOrientationValid(true)
-        soundEffect("sounds/rotate")
-        delayUpdate()
-    end)
-    listenToKey(board, gameSettings.keyInput.place, "place")
-    onEntityEvent(board, "place_pressed", function()
-        finishFallingBlock()
-    end)
-    listenToKey(board, gameSettings.keyInput.hold, "hold")
-    onEntityEvent(board, "hold_pressed", function()
-
-        if not placedAfterHold then
-            print("cannot hold, place first")
-            return
-        end
-        placedAfterHold = false
-
-        if holdingType ~= nill then
-            nextFallingBlockType = holdingType
-        end
-        holdingType = fallingBlock.type
-        print("holding:", holdingType)
-        destroyEntity(fallingBlock.entity)
-        fallingBlock = newFallingBlock()
-    end)
 
     function updateMaxYMarker()
         print("MaxY =", maxY)
@@ -401,16 +324,18 @@ function create(board, args)
     local introduceNewRow = nil
     introduceNewRow = function()
 
-        setTimeout(board, args.timeTillNewRow - 1.5, function()
+        local timeTillNewRow = args.timeTillNewRow / timeMultiplier
+
+        setTimeout(board, timeTillNewRow - 1.5, function()
             for x = 0, args.width - 1 do
                 local dot = grid[x][maxY]
                 if dot then
-                    component.RenderModel.animate(dot, "visibilityMask", 11, 1.4)
+                    component.RenderModel.animate(dot, "visibilityMask", 13, 2, "pow2In")
                 end
             end
         end)
 
-        setTimeout(board, args.timeTillNewRow, function()
+        setTimeout(board, timeTillNewRow, function()
             minY = minY - 1
             local bad = false
             local nrMarked = 0
@@ -441,16 +366,112 @@ function create(board, args)
             if nrMarked == args.width * args.deathMarksPerCol then
                 print("GAME OVER!")
                 setPaused(true)
-                _G.gameOver = true
+                currentEngine.gameOver = true
+                hudScreen.showGameOverPopup(score)
             else
                 introduceNewRow()
                 maxY = maxY - 1
                 updateMaxYMarker()
+                hudScreen.updateHudScore(score, minY)
             end
         end)
         local camPos = component.Transform.getFor(cam).position
-        component.Transform.animate(cam, "position", vec3(camPos.x, minY + 9, camPos.z), args.timeTillNewRow)
+        component.Transform.animate(cam, "position", vec3(camPos.x, minY + 9, camPos.z), timeTillNewRow)
     end
-    introduceNewRow()
     updateMaxYMarker()
+
+    function startGame()
+
+        fallingBlock = newFallingBlock()
+
+        setUpdateFunction(board, args.fallTime, function()
+            moveDownAndPossiblyFinish()
+        end)
+
+        function delayUpdate()
+            component.LuaScripted.getFor(board).updateAccumulator = 0.
+        end
+
+        listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
+        onEntityEvent(board, "move_right_pressed", function()
+            moveFallingBlock(1, 0)
+            isOrientationValid(true)
+            delayUpdate()
+        end)
+        listenToKey(board, gameSettings.keyInput.moveLeft, "move_left")
+        onEntityEvent(board, "move_left_pressed", function()
+            moveFallingBlock(-1, 0)
+            isOrientationValid(true)
+            delayUpdate()
+        end)
+        listenToKey(board, gameSettings.keyInput.softDrop, "soft_drop")
+        local softDropPressed = 0
+        local softDropReleased = false
+        onEntityEvent(board, "soft_drop_pressed", function()
+            softDropPressed = softDropPressed + 1
+            softDropReleased = false
+            local pressTime = softDropPressed
+            moveFallingBlock(0, -1)
+            isOrientationValid(true)
+            delayUpdate()
+
+            local e = fallingBlock.entity
+
+            setTimeout(e, .15, function()
+                setUpdateFunction(e, .08, function()
+                    if not softDropReleased and softDropPressed == pressTime then
+                        moveFallingBlock(0, -1)
+                        isOrientationValid(true)
+                        delayUpdate()
+                    else
+                        setUpdateFunction(e, 1, nil)
+                    end
+                end)
+            end)
+        end)
+        onEntityEvent(board, "soft_drop_released", function()
+            softDropReleased = true
+        end)
+        listenToKey(board, gameSettings.keyInput.rotateRight, "rotate_right")
+        onEntityEvent(board, "rotate_right_pressed", function()
+            rotateFallingBlock(true)
+            isOrientationValid(true)
+            soundEffect("sounds/rotate")
+            delayUpdate()
+        end)
+        listenToKey(board, gameSettings.keyInput.rotateLeft, "rotate_left")
+        onEntityEvent(board, "rotate_left_pressed", function()
+            rotateFallingBlock(false)
+            isOrientationValid(true)
+            soundEffect("sounds/rotate")
+            delayUpdate()
+        end)
+        listenToKey(board, gameSettings.keyInput.place, "place")
+        onEntityEvent(board, "place_pressed", function()
+            finishFallingBlock()
+        end)
+        listenToKey(board, gameSettings.keyInput.hold, "hold")
+        onEntityEvent(board, "hold_pressed", function()
+
+            if not placedAfterHold then
+                print("cannot hold, place first")
+                return
+            end
+            placedAfterHold = false
+
+            if holdingType ~= nill then
+                nextFallingBlockType = holdingType
+            end
+            holdingType = fallingBlock.type
+            print("holding:", holdingType)
+            destroyEntity(fallingBlock.entity)
+            fallingBlock = newFallingBlock()
+        end)
+        introduceNewRow()
+    end
+
+    setTimeout(board, 3., function()
+        startGame()
+    end)
+    hudScreen.countDown()
 end

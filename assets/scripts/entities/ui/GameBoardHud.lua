@@ -93,18 +93,60 @@ function create(hud, args)
     component.UIElement.getFor(stopButton).startOnNewLine = true
     component.UIElement.getFor(stopButton).renderOffset.x = -69
 
-    local scoreText = createChild(hud, "scoreText")
-
-    setComponents(scoreText, {
-        UIElement(),
+    setComponents(createChild(hud), {
+        UIElement {
+            renderOffset = ivec2(-69, 0),
+            startOnNewLine = true
+        },
         TextView {
-            text = "Score:",
-            fontSprite = "sprites/ui/default_font"
+            text = "\n\n\nScore:",
+            fontSprite = "sprites/ui/default_font",
+            mapColorFrom = 2,
+            mapColorTo = colors.theme0
+        }
+    })
+    local scoreText = createChild(hud, "scoreText")
+    setComponents(scoreText, {
+        UIElement {
+            renderOffset = ivec2(-69, 0),
+            startOnNewLine = true
+        },
+        TextView {
+            text = "0",
+            fontSprite = "sprites/ui/default_font",
+            mapColorFrom = 2,
+            mapColorTo = colors.text
+        }
+    })
+    setComponents(createChild(hud), {
+        UIElement {
+            renderOffset = ivec2(-69, 0),
+            startOnNewLine = true
+        },
+        TextView {
+            text = "\nDepth:",
+            fontSprite = "sprites/ui/default_font",
+            mapColorFrom = 2,
+            mapColorTo = colors.theme0
+        }
+    })
+    local depthText = createChild(hud, "depthText")
+    setComponents(depthText, {
+        UIElement {
+            renderOffset = ivec2(-69, 0),
+            startOnNewLine = true
+        },
+        TextView {
+            text = "",
+            fontSprite = "sprites/ui/default_font",
+            mapColorFrom = 2,
+            mapColorTo = colors.text
         }
     })
 
-    _G.updateHudScore = function(score)
-        component.TextView.getFor(scoreText).text = "Score: "..score
+    _G.updateHudScore = function(score, depth)
+        component.TextView.getFor(scoreText).text = ""..score
+        component.TextView.getFor(depthText).text = ""..depth
     end
 
     local boardWidth = 9
@@ -145,5 +187,40 @@ function create(hud, args)
 
             playAsepriteTag(component.AsepriteView.getFor(mark), "mark", true)
         end)
+    end
+
+    _G.showGameOverPopup = function(score)
+        local popup = createEntity()
+        setName(popup, "gameover popup")
+        setComponents(popup, {
+            UIElement {
+                absolutePositioning = true,
+                absoluteHorizontalAlign = 1,
+                absoluteVerticalAlign = 1,
+                renderOffset = ivec2(-128, 0)
+            },
+            UIContainer {
+                nineSliceSprite = "sprites/ui/howtoplay_9slice",
+
+                fixedWidth = 120,
+                fixedHeight = 120
+            }
+        })
+        applyTemplate(createChild(popup), "Text", {
+            text = "GAME OVER!\n",
+            waving = true,
+            wavingFrequency = .2,
+            wavingSpeed = 20,
+            wavingAmplitude = 2,
+            lineSpacing = 10
+        })
+        applyTemplate(createChild(popup), "Button", {
+            text = "Main menu",
+            action = nil
+        })
+    end
+
+    _G.countDown = function()
+        -- bla bla TODO
     end
 end
