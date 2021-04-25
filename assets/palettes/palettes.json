@@ -1,20 +1,8 @@
 {
   "default": [
-    "palettes/default0",
-    "palettes/default1",
-    "palettes/default2",
-    "palettes/default_bloom"
+    "palettes/default0"
   ],
   "test": [
-    "palettes/test0",
-    "palettes/test1",
-    "palettes/test2",
-    "palettes/test_bloom"
-  ],
-  "water": [
-    "palettes/water0",
-    "palettes/water1",
-    "palettes/water2",
-    "palettes/water_bloom"
+    "palettes/test0"
   ]
 }

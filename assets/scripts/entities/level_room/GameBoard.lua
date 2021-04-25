@@ -20,7 +20,7 @@ end
 function soundEffect(path)
     setComponents(createEntity(), {
         DespawnAfter {
-            time = 1.
+            time = 2.
         },
         SoundSpeaker {
             sound = path
@@ -30,9 +30,13 @@ end
 
 function create(board, args)
 
+    hudScreen.setRoom(currentEngine)
+
     local grid = {}
     local minY = 999999999
     local maxY = 4
+
+    local score = 0
 
     print("Creating game board..")
     setName(board, "board")
@@ -128,6 +132,8 @@ function create(board, args)
     function updateNextAndHolding()
         local nextB = getChild(cam, "nextBlock")
         local holdB = getChild(cam, "holdBlock")
+        currentEngine.nextBlock = nil
+        currentEngine.holdBlock = nil
         if nextB ~= nil then
             destroyEntity(nextB)
         end
@@ -135,6 +141,7 @@ function create(board, args)
             destroyEntity(holdB)
         end
         nextB = createChild(cam, "nextBlock")
+        currentEngine.nextBlock = nextB
         applyTemplate(nextB, "FallingBlock", { type = nextFallingBlockType })
         setComponents(nextB, {
             Transform {
@@ -146,6 +153,7 @@ function create(board, args)
         })
         if holdingType ~= nil then
             holdB = createChild(cam, "holdBlock")
+            currentEngine.holdBlock = holdB
             applyTemplate(holdB, "FallingBlock", { type = holdingType })
             setComponents(holdB, {
                 Transform {
@@ -246,11 +254,12 @@ function create(board, args)
             return false
         end
 
-        local modelPos = component.Transform.getFor(fallingBlock.entity).position
-        component.PointLight.remove(fallingBlock.entity)
-        component.Transform.animate(fallingBlock.entity, "position", vec3(modelPos.x, modelPos.y, -10 + math.random() * .1), .05, function()
+        local e = fallingBlock.entity
+        local modelPos = component.Transform.getFor(e).position
+        component.PointLight.remove(e)
+        component.Transform.animate(e, "position", vec3(modelPos.x, modelPos.y, -10 + math.random() * .1), .05, "pow2Out", function()
             setTimeout(board, 30, function()
-                destroyEntity(fallingBlock.entity)
+                destroyEntity(e)
             end)
         end)
 
@@ -278,6 +287,8 @@ function create(board, args)
         soundEffect("sounds/place")
         placedAfterHold = true
         fallingBlock = newFallingBlock()
+        score = score + 1
+        hudScreen.updateHudScore(score)
         return true
     end
 

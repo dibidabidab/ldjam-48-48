@@ -19,12 +19,6 @@ onEntityEvent(levelRestarter, "retry_key_pressed", function()
     openScreen("scripts/ui_screens/LevelScreen")
 end)
 
-loadOrCreateLevel(_G.levelToLoad)
+applyTemplate(createEntity(), "GameBoardHud")
 
-setComponents(createEntity(), {
-    UIElement(),
-    TextView {
-        text = "Deeptris v0.1",
-        fontSprite = "sprites/ui/default_font"
-    }
-})
+loadOrCreateLevel(_G.levelToLoad)

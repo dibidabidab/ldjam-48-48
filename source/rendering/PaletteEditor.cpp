@@ -108,8 +108,6 @@ bool PaletteEditor::drawPalettes(Palettes3D::Effect &effect)
 
     ImGui::NextColumn();
 
-    ImGui::Text("Light level 0,1,2 & Bloom");
-
     ImGui::NextColumn();
 
     for (int i = 0; i < effect.lightLevels[0]->colors.size(); i++)

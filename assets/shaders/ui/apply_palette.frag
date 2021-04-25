@@ -42,6 +42,6 @@ void main()
     if (indexedColor == 0u)
         discard;
 
-    vec3 colorFromPalette = getColorFromPalette(indexedColor, 2u, paletteEffect);
+    vec3 colorFromPalette = getColorFromPalette(indexedColor, 0u, paletteEffect);
     color = vec4(colorFromPalette, 1);
 }
