@@ -5,7 +5,8 @@ shapes = include("scripts/entities/level_room/_block_shapes")
 defaultArgs({
     width = 9,
     timeTillNewRow = 10,
-    fallTime = 1.
+    fallTime = 1.,
+    deathMarksPerCol = 2
 })
 
 function mod(a, b)
@@ -74,9 +75,9 @@ function create(board, args)
         else
             if punish then
                 component.Transform.animate(dot, "scale", vec3(.85), .5, "pow2Out")
-                component.Transform.animate(dot, "position", vec3(x, y + 3, 0), .5, "pow2Out", function()
+                component.Transform.animate(dot, "position", vec3(x, y + 4, 0), .5, "pow2Out", function()
                     setTimeout(board, .4, function()
-                        component.Transform.animate(dot, "position", vec3(-2, y + 3, 0), .5, "pow2Out", function()
+                        component.Transform.animate(dot, "position", vec3(-2, y + 4, 0), .5, "pow2Out", function()
                             setTimeout(board, .1, function()
                                 destroyEntity(dot)
                             end)
@@ -305,8 +306,7 @@ function create(board, args)
     end)
 
     function delayUpdate()
-        local scripted = component.LuaScripted.getFor(board)
-        scripted.updateAccumulator = scripted.updateAccumulator * .3
+        component.LuaScripted.getFor(board).updateAccumulator = 0.
     end
 
     listenToKey(board, gameSettings.keyInput.moveRight, "move_right")
@@ -334,7 +334,7 @@ function create(board, args)
 
         local e = fallingBlock.entity
 
-        setTimeout(e, .1, function()
+        setTimeout(e, .15, function()
             setUpdateFunction(e, .08, function()
                 if not softDropReleased and softDropPressed == pressTime then
                     moveFallingBlock(0, -1)
@@ -393,6 +393,11 @@ function create(board, args)
         end
     end
 
+    local deathMarks = {}
+    for x = 0, args.width - 1 do
+        deathMarks[x] = {}
+    end
+
     local introduceNewRow = nil
     introduceNewRow = function()
 
@@ -408,20 +413,40 @@ function create(board, args)
         setTimeout(board, args.timeTillNewRow, function()
             minY = minY - 1
             local bad = false
+            local nrMarked = 0
             for x = 0, args.width - 1 do
                 placeDot(x, minY)
 
+                local crossedAtX = false
                 if removeDot(x, maxY, true) then
                     bad = true
+                    crossedAtX = true
                     print("Dot crossed maxY line!", x)
+                end
+                local marked = false
+                for markY = 0, args.deathMarksPerCol - 1 do
+                    if not marked and crossedAtX and not deathMarks[x][markY] then
+                        deathMarks[x][markY] = true
+                        hudScreen.mark(x, markY)
+                        marked = true
+                    end
+                    if deathMarks[x][markY] then
+                        nrMarked = nrMarked + 1
+                    end
                 end
             end
             if bad then
                 soundEffect("sounds/crossed")
             end
-            introduceNewRow()
-            maxY = maxY - 1
-            updateMaxYMarker()
+            if nrMarked == args.width * args.deathMarksPerCol then
+                print("GAME OVER!")
+                setPaused(true)
+                _G.gameOver = true
+            else
+                introduceNewRow()
+                maxY = maxY - 1
+                updateMaxYMarker()
+            end
         end)
         local camPos = component.Transform.getFor(cam).position
         component.Transform.animate(cam, "position", vec3(camPos.x, minY + 9, camPos.z), args.timeTillNewRow)

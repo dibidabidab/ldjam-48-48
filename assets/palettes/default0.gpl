@@ -3,4 +3,7 @@ GIMP Palette
   0   0   0	transparent
  34  32  38	background
  59 196 183	theme0
-197   5 206	theme2
+143   5 206	theme2
+255   0  82	bad
+255 254 254	text
+254   0 255	button

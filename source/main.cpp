@@ -77,6 +77,9 @@ void initLuaStuff()
 int main(int argc, char *argv[])
 {
     Game::loadSettings();
+    #ifdef EMSCRIPTEN
+    Game::settings.graphics.bloomBlurIterations = 0; // temp fix for webgl bug
+    #endif
 
     addAssetLoaders();
 

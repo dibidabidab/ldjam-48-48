@@ -5,6 +5,7 @@
 #include <ecs/systems/AudioSystem.h>
 #include <ecs/systems/LuaScriptsSystem.h>
 #include <generated/Children.hpp>
+#include <ecs/systems/SpawningSystem.h>
 #include "UIScreen.h"
 #include "../../game/Game.h"
 #include "../../ecs/systems/graphics/SpriteSystem.h"
@@ -22,6 +23,7 @@ UIScreen::UIScreen(const asset<luau::Script> &s)
     addSystem(new SpriteSystem("(animated) sprites"));
     addSystem(new AudioSystem("audio"));
     addSystem(new LuaScriptsSystem("lua functions"));
+    addSystem(new SpawningSystem("(de)spawning"), true); // SPAWN ENTITIES FIRST, so they get a chance to be updated before being rendered
 
     cam.position = mu::Z;
     cam.lookAt(mu::ZERO_3);

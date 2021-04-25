@@ -1,8 +1,8 @@
 
 defaultArgs({
     text = "Lorem Dibidabidab!",
-    mapColorFrom = 7,
-    color = 7,
+    mapColorFrom = 2,
+    color = 2,
     lineSpacing = 3,
     letterSpacing = 1,
     font = "sprites/ui/default_font",

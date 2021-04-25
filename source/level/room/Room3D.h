@@ -22,6 +22,7 @@ class Room3D : public Room
 
     VertAttributes loadedMeshAttributes, loadedRiggedMeshAttributes;
     std::unordered_map<std::string, SharedModel> models;
+    bool paused = false;
 
     Room3D();
 

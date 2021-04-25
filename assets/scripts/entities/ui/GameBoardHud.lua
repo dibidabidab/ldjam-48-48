@@ -60,13 +60,38 @@ function create(hud, args)
     component.UIElement.getFor(retryButton).renderOffset.x = -69
 
     local pauseButton = createChild(hud, "pauseButton")
+    local paused = false
+    function togglePause()
+        if not paused then
+            room.setPaused(true)
+            paused = true
+
+            local howToPlay = createEntity()
+            applyTemplate(howToPlay, "HowToPlay", { goBack = togglePause, okText = "Continue" })
+
+        elseif not room.gameOver then
+            room.setPaused(false)
+            paused = false
+        end
+    end
     applyTemplate(pauseButton, "Button", {
-        text = "Pause",
-        action = nil
+        text = "Help ",
+        action = function()
+            if not paused then
+                togglePause()
+            end
+        end
     })
     component.UIElement.getFor(pauseButton).startOnNewLine = true
     component.UIElement.getFor(pauseButton).renderOffset.x = -69
 
+    local stopButton = createChild(hud, "stopButton")
+    applyTemplate(stopButton, "Button", {
+        text = "Stop ",
+        action = nil--_G.retryLevel
+    })
+    component.UIElement.getFor(stopButton).startOnNewLine = true
+    component.UIElement.getFor(stopButton).renderOffset.x = -69
 
     local scoreText = createChild(hud, "scoreText")
 
@@ -95,9 +120,14 @@ function create(hud, args)
             fixedWidth = boardWidth * 16
         }
     })
+    local marks = {}
+    for x = 1, boardWidth do
+        marks[x - 1] = {}
+    end
     for y = 1, 2 do
         for x = 1, boardWidth do
             local mark = createChild(marksContainer)
+            marks[x - 1][y - 1] = mark
             setComponents(mark, {
                 UIElement {
                     lineSpacing = 0
@@ -107,10 +137,13 @@ function create(hud, args)
                     loop = false
                 }
             })
-            setTimeout(mark, math.random() * 4, function()
-
-                playAsepriteTag(component.AsepriteView.getFor(mark), "mark", true)
-            end)
         end
+    end
+    _G.mark = function(x, y)
+        local mark = marks[x][y]
+        setTimeout(mark, x * .02, function()
+
+            playAsepriteTag(component.AsepriteView.getFor(mark), "mark", true)
+        end)
     end
 end

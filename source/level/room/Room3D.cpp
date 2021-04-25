@@ -67,11 +67,15 @@ void Room3D::initializeLuaEnvironment()
             return sol::optional<ivec2>();
         return sol::optional(ivec2(pixelPos));
     };
+    luaEnvironment["setPaused"] = [&] (bool p) {
+        paused = p;
+    };
 }
 
 void Room3D::update(double deltaTime)
 {
-    Room::update(deltaTime);
+    if (!paused)
+        Room::update(deltaTime);
 
     updateOrCreateCamera(deltaTime);
 }

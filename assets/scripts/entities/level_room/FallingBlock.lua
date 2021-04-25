@@ -23,9 +23,9 @@ function create(block, args)
         },
         ShadowCaster(),
         PointLight {
-            diffuse = color * vec3(10),
-            specular = color * vec3(10),
-            ambient = color
+            diffuse = color * vec3(20),
+            specular = color * vec3(20),
+            ambient = color * vec3(3)
         }
     })
 

@@ -1,6 +1,13 @@
 config:
   namespace: Game
 
+AudioSettings:
+  _flags:
+    - not_a_component
+    - json_with_keys
+
+  masterVolume: [ float, 4. ]
+
 GraphicsSettings:
   _flags:
     - not_a_component
@@ -10,7 +17,7 @@ GraphicsSettings:
 
   gammaCorrection: [float, 2.2]
   msaaSamples: [uint8, 4]
-  bloomBlurIterations: [uint8, 0]
+  bloomBlurIterations: [uint8, 5]
   bloomThreshold: [float, 1.7]
   shadows: [bool, true]
   maxArmatureBones: [uint, 64]
@@ -46,6 +53,7 @@ Settings:
     - json_with_keys
 
   graphics: GraphicsSettings
+  audio: AudioSettings
   keyInput: KeyInputSettings
   customSettings: [ json, json::object() ]
   showDeveloperOptions: [ bool, false ]
