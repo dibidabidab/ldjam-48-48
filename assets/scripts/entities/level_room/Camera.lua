@@ -14,6 +14,9 @@ function create(cam, args)
             farClipPlane = 1000
         }
     })
+    component.Transform.getFor(cam).rotation.y = -80
+    local rot = quat:new()
+    component.Transform.animate(cam, "rotation", rot, 4., "pow2Out")
 
     if args.name ~= "" then
         setName(cam, args.name)

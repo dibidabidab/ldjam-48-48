@@ -3,7 +3,7 @@ loadModels("assets/models/blocks.ubj", false)
 shapes = include("scripts/entities/level_room/_block_shapes")
 
 defaultArgs({
-    width = 10,
+    width = 9,
     timeTillNewRow = 10,
     fallTime = 1.
 })
@@ -43,7 +43,7 @@ function create(board, args)
 
     local cam = createChild(board, "camera")
     applyTemplate(cam, "Camera", { setAsMain = true })
-    component.Transform.getFor(cam).position = vec3(args.width / 2, 2, 14)
+    component.Transform.getFor(cam).position = vec3(args.width / 2, 2, 16)
 
     local maxYMarkers = { createChild(board, "maxYMarkerLeft"), createChild(board, "maxYMarkerRight") }
     for i = 1, 2 do
@@ -148,7 +148,7 @@ function create(board, args)
                 position = vec3(-100, 0, 0) -- prevent one frame display
             },
             ParentOffset {
-                position = vec3(8, -6, -14)
+                position = vec3(6, -6, -14)
             }
         })
         if holdingType ~= nil then
@@ -160,7 +160,7 @@ function create(board, args)
                     position = vec3(-100, 0, 0) -- prevent one frame display
                 },
                 ParentOffset {
-                    position = vec3(-12, -6, -14)
+                    position = vec3(-10, -6, -14)
                 }
             })
         end

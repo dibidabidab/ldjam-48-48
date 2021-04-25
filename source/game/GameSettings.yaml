@@ -14,8 +14,8 @@ GraphicsSettings:
   bloomThreshold: [float, 1.7]
   shadows: [bool, true]
   maxArmatureBones: [uint, 64]
-  fogStart: [float, 20]
-  fogEnd: [float, 25]
+  fogStart: [float, 22]
+  fogEnd: [float, 28]
   fogEnabled: [bool, true]
 
   uiPixelScaling: [uint, 3]
