@@ -3,10 +3,10 @@ loadModels("assets/models/blocks.ubj", false)
 shapes = include("scripts/entities/level_room/_block_shapes")
 
 defaultArgs({
-    width = 9,
+    width = _G.boardWidth or 9,
     timeTillNewRow = 14,
     fallTime = 1.,
-    deathMarksPerCol = 2
+    deathMarksPerCol = 2    -- todo hud has 2 hardcoded
 })
 
 function mod(a, b)

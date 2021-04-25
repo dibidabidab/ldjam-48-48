@@ -3,7 +3,11 @@ function create(player)
 
     setName(player, "player")
 
-    applyTemplate(createEntity(), "GameBoard")
+    if not _G.titleScreen then
+        applyTemplate(createEntity(), "GameBoard")
+    else
+        applyTemplate(createEntity(), "Title")
+    end
 
 end
 

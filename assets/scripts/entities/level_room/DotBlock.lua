@@ -1,11 +1,14 @@
 
+defaultArgs({
+    random = math.random
+})
 
-function create(dot)
+function create(dot, args)
 
     setComponents(dot, {
         Transform(),
         RenderModel {
-            modelName = (math.random() > .5) and "DotBlock" or "DotBlock.001"
+            modelName = (args.random() > .5) and "DotBlock" or "DotBlock.001"
         },
         ShadowCaster(),
         ShadowReceiver()

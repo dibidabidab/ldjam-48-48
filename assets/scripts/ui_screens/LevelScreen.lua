@@ -1,5 +1,6 @@
 
 _G.hudScreen = currentEngine
+_G.titleScreen = false
 
 onEvent("BeforeDelete", function()
     loadOrCreateLevel(nil)
@@ -7,10 +8,6 @@ onEvent("BeforeDelete", function()
         _G.hudScreen = nil
     end
 end)
-
-if _G.levelToLoad == nil then
-    error("_G.levelToLoad is nil")
-end
 
 _G.retryLevel = function()
     closeActiveScreen()
@@ -23,4 +20,4 @@ onEntityEvent(levelRestarter, "retry_key_pressed", retryLevel)
 
 applyTemplate(createEntity(), "GameBoardHud")
 
-loadOrCreateLevel(_G.levelToLoad)
+loadOrCreateLevel("assets/levels/default_level.lvl")

@@ -42,7 +42,7 @@ function create(con, args)
     showKey("rotateRight", "Rotate right\n")
     showKey("rotateLeft", "Rotate left\n")
     showKey("place", "Place\n")
-    showKey("hold", "Hold stone\n")
+    showKey("hold", "Hold stone\n\n")
 
     local okClicked = false
     applyTemplate(createChild(con), "Button", {

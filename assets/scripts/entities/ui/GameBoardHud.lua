@@ -149,7 +149,7 @@ function create(hud, args)
         component.TextView.getFor(depthText).text = ""..depth
     end
 
-    local boardWidth = 9
+    local boardWidth = _G.boardWidth
 
     local marksContainer = createChild(hud, "marksContainer")
     setComponents(marksContainer, {
